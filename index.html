@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prontuário Eletrônico de Enfermagem - João da Silva Santos</title>
+    <!-- Fontes e Ícones -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous"></script>
+
+    <style>
+        :root {
+            --primary: #0284c7;
+            --primary-dark: #0369a1;
+            --primary-light: #e0f2fe;
+            --secondary: #0f766e;
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success: #16a34a;
+            --warning: #d97706;
+            --danger: #dc2626;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding-bottom: 50px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white;
+            padding: 20px 0;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo i {
+            font-size: 28px;
+            color: #38bdf8;
+        }
+
+        .logo h1 {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .logo p {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .header-actions button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+
+        .header-actions button:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        /* Card do Paciente */
+        .patient-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            margin-bottom: 30px;
+        }
+
+        .patient-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--primary-light);
+            padding-bottom: 12px;
+            margin-bottom: 20px;
+        }
+
+        .patient-name {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-badge {
+            background-color: #dcfce7;
+            color: var(--success);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .patient-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-item .label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .info-item .value {
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-main);
+        }
+
+        .info-item.full-width {
+            grid-column: 1 / -1;
+            background-color: #f1f5f9;
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+        }
+
+        /* Filtros/Navegação por dia */
+        .day-nav {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            margin-bottom: 25px;
+        }
+
+        .day-nav-item {
+            background: var(--bg-card);
+            padding: 10px 18px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-muted);
+            text-decoration: none;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+
+        .day-nav-item:hover, .day-nav-item.active {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 2px 4px rgba(2, 132, 199, 0.3);
+        }
+
+        /* Linha do Tempo / Timeline */
+        .day-section {
+            margin-bottom: 40px;
+        }
+
+        .day-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background-color: #e2e8f0;
+            padding: 10px 16px;
+            border-radius: 8px;
+        }
+
+        .period-block {
+            margin-bottom: 25px;
+        }
+
+        .period-header {
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .period-diurno {
+            background-color: #fef3c7;
+            color: #b45309;
+        }
+
+        .period-noturno {
+            background-color: #e0e7ff;
+            color: #3730a3;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+            border-left: 3px solid var(--border);
+        }
+
+        .timeline-entry {
+            position: relative;
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .timeline-entry::before {
+            content: '';
+            position: absolute;
+            left: -38px;
+            top: 24px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            border: 3px solid white;
+            box-shadow: 0 0 0 2px var(--primary);
+        }
+
+        .entry-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 8px;
+        }
+
+        .entry-time-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .entry-time {
+            font-weight: 700;
+            font-size: 16px;
+            color: var(--primary-dark);
+            background: var(--primary-light);
+            padding: 2px 8px;
+            border-radius: 6px;
+        }
+
+        .entry-title {
+            font-weight: 700;
+            font-size: 16px;
+            color: var(--text-main);
+        }
+
+        .entry-body {
+            font-size: 14.5px;
+            color: #334155;
+            white-space: pre-line;
+            margin-bottom: 15px;
+        }
+
+        .entry-body p {
+            margin-bottom: 8px;
+        }
+
+        /* Sinais Vitais Card */
+        .vitals-box {
+            background-color: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin: 12px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .vital-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        .vital-item i {
+            color: var(--primary);
+        }
+
+        .vital-value {
+            color: var(--text-main);
+            font-weight: 700;
+        }
+
+        .entry-footer {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            font-size: 12px;
+            color: var(--text-muted);
+            border-top: 1px dashed var(--border);
+            padding-top: 8px;
+            margin-top: 10px;
+        }
+
+        .signature {
+            font-weight: 600;
+            color: #475569;
+        }
+
+        /* Resumo Card */
+        .summary-card {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 1px solid #bae6fd;
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-top: 40px;
+            box-shadow: var(--shadow);
+        }
+
+        .summary-card h2 {
+            color: var(--primary-dark);
+            font-size: 20px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .summary-list {
+            list-style-type: none;
+        }
+
+        .summary-list li {
+            position: relative;
+            padding-left: 24px;
+            margin-bottom: 10px;
+            font-size: 14.5px;
+        }
+
+        .summary-list li::before {
+            content: "\f00c";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+        }
+
+        /* Estilos de Impressão */
+        @media print {
+            body {
+                background: white;
+                color: black;
+                font-size: 12pt;
+            }
+
+            header, .header-actions, .day-nav {
+                display: none;
+            }
+
+            .container {
+                width: 100%;
+                max-width: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            .patient-card, .timeline-entry, .summary-card {
+                box-shadow: none;
+                border: 1px solid #ccc;
+                page-break-inside: avoid;
+            }
+
+            .timeline {
+                padding-left: 0;
+                border-left: none;
+            }
+
+            .timeline-entry::before {
+                display: none;
+            }
+
+            .day-title {
+                background: #eee;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .period-header {
+                border: 1px solid #ccc;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+
+            .patient-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .vitals-box {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <i class="fa-solid fa-notes-medical"></i>
+                <div>
+                    <h1>Sistema de Prontuário Eletrônico</h1>
+                    <p>Módulo de Enfermagem Hospitalar</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button onclick="window.print()"><i class="fa-solid fa-print"></i> Imprimir Prontuário</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- Card de Identificação do Paciente -->
+        <section class="patient-card">
+            <div class="patient-header">
+                <div class="patient-name">
+                    <i class="fa-solid fa-user-injured"></i> João da Silva Santos
+                </div>
+                <span class="status-badge">Alta Hospitalar</span>
+            </div>
+            <div class="patient-grid">
+                <div class="info-item">
+                    <span class="label">Idade / Sexo</span>
+                    <span class="value">37 anos — Masculino</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Data de Admissão</span>
+                    <span class="value">18/09/2026</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Unidade / Leito</span>
+                    <span class="value">Clínica Médica — Leito 12</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Motivo da Internação</span>
+                    <span class="value">Dispneia grave</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Profissional Responsável</span>
+                    <span class="value">Damião Lima (Técnico de Enfermagem)</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">COREN</span>
+                    <span class="value">COREN-SP: 123456-TE</span>
+                </div>
+                <div class="info-item full-width">
+                    <span class="label">Diagnóstico Médico</span>
+                    <span class="value">Insuficiência respiratória aguda hipoxêmica secundária a quadro infeccioso respiratório, em investigação.</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Navegação Rápida -->
+        <nav class="day-nav">
+            <a href="#dia1" class="day-nav-item">18/09 (1º Dia)</a>
+            <a href="#dia2" class="day-nav-item">19/09 (2º Dia)</a>
+            <a href="#dia3" class="day-nav-item">20/09 (3º Dia)</a>
+            <a href="#dia4" class="day-nav-item">21/09 (4º Dia)</a>
+            <a href="#dia5" class="day-nav-item">22/09 (5º Dia - Alta)</a>
+            <a href="#resumo" class="day-nav-item">Resumo da Evolução</a>
+        </nav>
+
+        <!-- 1º DIA DE INTERNAÇÃO -->
+        <section id="dia1" class="day-section">
+            <div class="day-title">
+                <i class="fa-regular fa-calendar-check"></i> 18/09/2026 — 1º DIA DE INTERNAÇÃO
+            </div>
+
+            <!-- Diurno -->
+            <div class="period-block">
+                <span class="period-header period-diurno"><i class="fa-solid fa-sun"></i> Período Diurno</span>
+                <div class="timeline">
+                    
+                    <div class="timeline-entry">
+                        <div class="entry-header">
+                            <div class="entry-time-title">
+                                <span class="entry-time">08:00</span>
+                                <span class="entry-title">ADMISSÃO DE ENFERMAGEM</span>
+                            </div>
+                        </div>
+                        <div class="entry-body">
+                            Paciente admitido na unidade, procedente do pronto-socorro, em maca e acompanhado pela equipe de enfermagem. Consciente, orientado em tempo e espaço, comunicativo e ansioso. Apresenta dispneia importante, taquipneia e uso de musculatura acessória.<br><br>
+                            Em oxigenoterapia por máscara de Venturi a 50%, conforme prescrição médica. Apresenta tosse produtiva, com secreção amarelada.
+                        </div>
+                        <div class="vitals-box">
+                            <div class="vital-item"><i class="fa-solid fa-heart-pulse"></i> PA: <span class="vital-value">148 × 86 mmHg</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-wave-square"></i> FC: <span class="vital-value">112 bpm</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-lungs"></i> FR: <span class="vital-value">32 irpm</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-droplet"></i> SpO₂: <span class="vital-value">86% (AA) / 93% (c/ O₂)</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-temperature-high"></i> Temp: <span class="vital-value">38,1 °C</span></div>
+                        </div>
+                        <div class="entry-body">
+                            Realizada monitorização dos sinais vitais e oximetria. Paciente mantido em posição de Fowler, com cabeceira elevada. Realizada conferência da identificação do paciente e instalação da pulseira de identificação conforme protocolo institucional.<br>
+                            Paciente orientado quanto à rotina da unidade, uso da campainha e necessidade de solicitar auxílio para mobilização.<br>
+                            Enfermeiro responsável comunicado sobre o quadro respiratório e alterações dos sinais vitais.
+                        </div>
+                        <div class="entry-footer">
+                            <span class="signature">Damião Lima — Técnico de Enfermagem | COREN-SP: 123456-TE</span>
+                        </div>
+                    </div>
+
+                    <div class="timeline-entry">
+                        <div class="entry-header">
+                            <div class="entry-time-title">
+                                <span class="entry-time">10:00</span>
+                                <span class="entry-title">REAVALIAÇÃO</span>
+                            </div>
+                        </div>
+                        <div class="entry-body">
+                            Paciente consciente e orientado, mantendo dispneia aos mínimos esforços. Permanece em posição de Fowler e em oxigenoterapia conforme prescrição.<br>
+                            Apresenta tosse produtiva e dificuldade para eliminação de secreções. Realizada higiene oral e cuidados para manutenção das vias aéreas pérvias.
+                        </div>
+                        <div class="vitals-box">
+                            <div class="vital-item"><i class="fa-solid fa-heart-pulse"></i> PA: <span class="vital-value">142 × 82 mmHg</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-wave-square"></i> FC: <span class="vital-value">106 bpm</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-lungs"></i> FR: <span class="vital-value">30 irpm</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-droplet"></i> SpO₂: <span class="vital-value">94% (c/ O₂)</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-temperature-high"></i> Temp: <span class="vital-value">37,9 °C</span></div>
+                        </div>
+                        <div class="entry-body">
+                            Mantida monitorização contínua. Enfermeiro comunicado quanto à persistência da dispneia.
+                        </div>
+                        <div class="entry-footer">
+                            <span class="signature">Damião Lima — Técnico de Enfermagem</span>
+                        </div>
+                    </div>
+
+                    <div class="timeline-entry">
+                        <div class="entry-header">
+                            <div class="entry-time-title">
+                                <span class="entry-time">12:00</span>
+                                <span class="entry-title">BANHO NO LEITO</span>
+                            </div>
+                        </div>
+                        <div class="entry-body">
+                            Realizado banho no leito com auxílio da equipe de enfermagem devido à limitação respiratória e intolerância aos esforços.<br>
+                            Realizada higiene corporal, higiene íntima, higiene oral, troca de roupas e roupa de cama. Paciente mantido em posição confortável e com oxigenoterapia durante o procedimento.<br>
+                            Realizada avaliação da integridade da pele, sem presença de lesões ou áreas de hiperemia. Pele mantida limpa e seca.<br>
+                            Realizada mudança de decúbito e reposicionamento, com proteção das proeminências ósseas.<br>
+                            Paciente apresentou aumento da dispneia durante a mobilização, sendo o procedimento realizado de forma pausada, com períodos de repouso.<br>
+                            Ao término, paciente confortável, em Fowler, com campainha ao alcance.
+                        </div>
+                        <div class="entry-footer">
+                            <span class="signature">Damião Lima — Técnico de Enfermagem</span>
+                        </div>
+                    </div>
+
+                    <div class="timeline-entry">
+                        <div class="entry-header">
+                            <div class="entry-time-title">
+                                <span class="entry-time">13:00</span>
+                                <span class="entry-title">ALIMENTAÇÃO POR SNE</span>
+                            </div>
+                        </div>
+                        <div class="entry-body">
+                            Paciente permanece temporariamente sem dieta por via oral devido ao quadro respiratório e risco de broncoaspiração, conforme prescrição.<br>
+                            Após passagem da sonda nasoenteral (SNE) pela equipe habilitada, realizados cuidados conforme protocolo institucional.<br>
+                            Iniciada dieta enteral conforme prescrição médica/nutricional. Paciente mantido com cabeceira elevada durante a administração e após o procedimento.<br>
+                            Apresentou boa tolerância inicial, sem náuseas, vômitos ou distensão abdominal.
+                        </div>
+                        <div class="entry-footer">
+                            <span class="signature">Damião Lima — Técnico de Enfermagem</span>
+                        </div>
+                    </div>
+
+                    <div class="timeline-entry">
+                        <div class="entry-header">
+                            <div class="entry-time-title">
+                                <span class="entry-time">16:00</span>
+                                <span class="entry-title">CUIDADOS DE ENFERMAGEM</span>
+                            </div>
+                        </div>
+                        <div class="entry-body">
+                            Paciente consciente e orientado. Apresenta redução discreta do esforço respiratório.<br>
+                            Mantida oxigenoterapia conforme prescrição. Realizada higiene oral e cuidados para manutenção das vias aéreas pérvias.<br>
+                            Realizada mudança de decúbito, avaliação da pele e medidas de prevenção de lesão por pressão.
+                        </div>
+                        <div class="vitals-box">
+                            <div class="vital-item"><i class="fa-solid fa-heart-pulse"></i> PA: <span class="vital-value">136 × 80 mmHg</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-wave-square"></i> FC: <span class="vital-value">98 bpm</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-lungs"></i> FR: <span class="vital-value">26 irpm</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-droplet"></i> SpO₂: <span class="vital-value">95% (c/ O₂)</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-temperature-high"></i> Temp: <span class="vital-value">37,5 °C</span></div>
+                        </div>
+                        <div class="entry-body">
+                            Paciente sem queixas álgicas no momento.
+                        </div>
+                        <div class="entry-footer">
+                            <span class="signature">Damião Lima — Técnico de Enfermagem</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Noturno -->
+            <div class="period-block">
+                <span class="period-header period-noturno"><i class="fa-solid fa-moon"></i> Período Noturno</span>
+                <div class="timeline">
+
+                    <div class="timeline-entry">
+                        <div class="entry-header">
+                            <div class="entry-time-title">
+                                <span class="entry-time">20:00</span>
+                                <span class="entry-title">EVOLUÇÃO NOTURNA</span>
+                            </div>
+                        </div>
+                        <div class="entry-body">
+                            Paciente em leito, consciente, orientado e colaborativo. Mantém dispneia moderada aos esforços.<br>
+                            Em oxigenoterapia conforme prescrição. Apresenta tosse produtiva, com presença de secreção em pequena quantidade.<br>
+                            Realizada higiene oral, mudança de decúbito e medidas de conforto.<br>
+                            Dieta enteral mantida conforme prescrição, com boa tolerância.
+                        </div>
+                        <div class="vitals-box">
+                            <div class="vital-item"><i class="fa-solid fa-heart-pulse"></i> PA: <span class="vital-value">134 × 78 mmHg</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-wave-square"></i> FC: <span class="vital-value">96 bpm</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-lungs"></i> FR: <span class="vital-value">25 irpm</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-droplet"></i> SpO₂: <span class="vital-value">95% (c/ O₂)</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-temperature-high"></i> Temp: <span class="vital-value">37,3 °C</span></div>
+                        </div>
+                        <div class="entry-body">
+                            Paciente orientado a solicitar auxílio da equipe sempre que necessário.
+                        </div>
+                        <div class="entry-footer">
+                            <span class="signature">Damião Lima — Técnico de Enfermagem</span>
+                        </div>
+                    </div>
+
+                    <div class="timeline-entry">
+                        <div class="entry-header">
+                            <div class="entry-time-title">
+                                <span class="entry-time">00:00</span>
+                                <span class="entry-title">CONTROLE NOTURNO</span>
+                            </div>
+                        </div>
+                        <div class="entry-body">
+                            Paciente em repouso no leito, consciente e orientado. Mantém oxigenoterapia e monitorização da SpO₂.<br>
+                            Sem sinais de desconforto respiratório intenso em repouso.<br>
+                            Dieta enteral mantida conforme prescrição. Cabeceira elevada.
+                        </div>
+                        <div class="vitals-box">
+                            <div class="vital-item"><i class="fa-solid fa-heart-pulse"></i> PA: <span class="vital-value">130 × 76 mmHg</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-wave-square"></i> FC: <span class="vital-value">90 bpm</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-lungs"></i> FR: <span class="vital-value">23 irpm</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-droplet"></i> SpO₂: <span class="vital-value">96% (c/ O₂)</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-temperature-high"></i> Temp: <span class="vital-value">37,0 °C</span></div>
+                        </div>
+                        <div class="entry-body">
+                            Realizada mudança de decúbito e cuidados de conforto.
+                        </div>
+                        <div class="entry-footer">
+                            <span class="signature">Damião Lima — Técnico de Enfermagem</span>
+                        </div>
+                    </div>
+
+                    <div class="timeline-entry">
+                        <div class="entry-header">
+                            <div class="entry-time-title">
+                                <span class="entry-time">04:00</span>
+                                <span class="entry-title">CONTROLE NOTURNO</span>
+                            </div>
+                        </div>
+                        <div class="entry-body">
+                            Paciente em repouso, consciente, orientado e responsivo aos estímulos. Respiração espontânea, mantendo oxigenoterapia.<br>
+                            Sem intercorrências durante o período.
+                        </div>
+                        <div class="vitals-box">
+                            <div class="vital-item"><i class="fa-solid fa-heart-pulse"></i> PA: <span class="vital-value">128 × 74 mmHg</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-wave-square"></i> FC: <span class="vital-value">88 bpm</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-lungs"></i> FR: <span class="vital-value">22 irpm</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-droplet"></i> SpO₂: <span class="vital-value">96% (c/ O₂)</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-temperature-high"></i> Temp: <span class="vital-value">36,8 °C</span></div>
+                        </div>
+                        <div class="entry-body">
+                            Mantidos cuidados de enfermagem e medidas de prevenção de queda e lesão por pressão.
+                        </div>
+                        <div class="entry-footer">
+                            <span class="signature">Damião Lima — Técnico de Enfermagem</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- 2º DIA DE INTERNAÇÃO -->
+        <section id="dia2" class="day-section">
+            <div class="day-title">
+                <i class="fa-regular fa-calendar-check"></i> 19/09/2026 — 2º DIA DE INTERNAÇÃO
+            </div>
+
+            <!-- Diurno -->
+            <div class="period-block">
+                <span class="period-header period-diurno"><i class="fa-solid fa-sun"></i> Período Diurno</span>
+                <div class="timeline">
+
+                    <div class="timeline-entry">
+                        <div class="entry-header">
+                            <div class="entry-time-title">
+                                <span class="entry-time">08:00</span>
+                                <span class="entry-title">EVOLUÇÃO</span>
+                            </div>
+                        </div>
+                        <div class="entry-body">
+                            Paciente consciente, orientado e colaborativo. Apresenta melhora do padrão respiratório, mantendo oxigenoterapia por cateter nasal conforme prescrição.<br>
+                            Tosse produtiva com redução da quantidade de secreção.
+                        </div>
+                        <div class="vitals-box">
+                            <div class="vital-item"><i class="fa-solid fa-heart-pulse"></i> PA: <span class="vital-value">132 × 78 mmHg</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-wave-square"></i> FC: <span class="vital-value">92 bpm</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-lungs"></i> FR: <span class="vital-value">22 irpm</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-droplet"></i> SpO₂: <span class="vital-value">96% (c/ O₂)</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-temperature-high"></i> Temp: <span class="vital-value">37,1 °C</span></div>
+                        </div>
+                        <div class="entry-body">
+                            Realizado banho no leito, higiene oral e troca de roupas de cama. Pele íntegra, sem lesões aparentes.<br>
+                            Realizada mudança de decúbito e medidas preventivas para lesão por pressão.<br>
+                            Dieta enteral mantida, apresentando boa tolerância.
+                        </div>
+                        <div class="entry-footer">
+                            <span class="signature">Damião Lima — Técnico de Enfermagem</span>
+                        </div>
+                    </div>
+
+                    <div class="timeline-entry">
+                        <div class="entry-header">
+                            <div class="entry-time-title">
+                                <span class="entry-time">12:00</span>
+                                <span class="entry-title">BANHO E CUIDADOS</span>
+                            </div>
+                        </div>
+                        <div class="entry-body">
+                            Realizado banho no leito, higiene íntima e oral, troca de roupas e organização do leito.<br>
+                            Paciente apresentou menor intolerância durante a mobilização em comparação ao dia anterior.<br>
+                            Mantida cabeceira elevada e oxigenoterapia conforme prescrição.
+                        </div>
+                        <div class="vitals-box">
+                            <div class="vital-item"><i class="fa-solid fa-heart-pulse"></i> PA: <span class="vital-value">130 × 76 mmHg</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-wave-square"></i> FC: <span class="vital-value">88 bpm</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-lungs"></i> FR: <span class="vital-value">21 irpm</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-droplet"></i> SpO₂: <span class="vital-value">96% (c/ O₂)</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-temperature-high"></i> Temp: <span class="vital-value">36,9 °C</span></div>
+                        </div>
+                        <div class="entry-footer">
+                            <span class="signature">Damião Lima — Técnico de Enfermagem</span>
+                        </div>
+                    </div>
+
+                    <div class="timeline-entry">
+                        <div class="entry-header">
+                            <div class="entry-time-title">
+                                <span class="entry-time">16:00</span>
+                                <span class="entry-title">REAVALIAÇÃO</span>
+                            </div>
+                        </div>
+                        <div class="entry-body">
+                            Paciente em repouso, consciente e orientado. Apresenta melhora progressiva do padrão respiratório.<br>
+                            Realizado desmame gradual da oxigenoterapia conforme prescrição e resposta clínica.<br>
+                            Dieta enteral mantida, sem sinais aparentes de intolerância.
+                        </div>
+                        <div class="vitals-box">
+                            <div class="vital-item"><i class="fa-solid fa-heart-pulse"></i> PA: <span class="vital-value">128 × 76 mmHg</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-wave-square"></i> FC: <span class="vital-value">86 bpm</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-lungs"></i> FR: <span class="vital-value">20 irpm</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-droplet"></i> SpO₂: <span class="vital-value">97%</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-temperature-high"></i> Temp: <span class="vital-value">36,7 °C</span></div>
+                        </div>
+                        <div class="entry-footer">
+                            <span class="signature">Damião Lima — Técnico de Enfermagem</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Noturno -->
+            <div class="period-block">
+                <span class="period-header period-noturno"><i class="fa-solid fa-moon"></i> Período Noturno</span>
+                <div class="timeline">
+
+                    <div class="timeline-entry">
+                        <div class="entry-header">
+                            <div class="entry-time-title">
+                                <span class="entry-time">20:00</span>
+                                <span class="entry-title">EVOLUÇÃO NOTURNA</span>
+                            </div>
+                        </div>
+                        <div class="entry-body">
+                            Paciente consciente, orientado, tranquilo e comunicativo. Apresenta melhora da dispneia.<br>
+                            Mantém respiração espontânea, com oxigenoterapia em baixo fluxo conforme prescrição.<br>
+                            Dieta enteral administrada conforme prescrição, sem intercorrências.<br>
+                            Realizada higiene oral e mudança de decúbito.
+                        </div>
+                        <div class="vitals-box">
+                            <div class="vital-item"><i class="fa-solid fa-heart-pulse"></i> PA: <span class="vital-value">126 × 74 mmHg</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-wave-square"></i> FC: <span class="vital-value">84 bpm</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-lungs"></i> FR: <span class="vital-value">20 irpm</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-droplet"></i> SpO₂: <span class="vital-value">97%</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-temperature-high"></i> Temp: <span class="vital-value">36,6 °C</span></div>
+                        </div>
+                        <div class="entry-footer">
+                            <span class="signature">Damião Lima — Técnico de Enfermagem</span>
+                        </div>
+                    </div>
+
+                    <div class="timeline-entry">
+                        <div class="entry-header">
+                            <div class="entry-time-title">
+                                <span class="entry-time">00:00</span>
+                                <span class="entry-title">CONTROLE</span>
+                            </div>
+                        </div>
+                        <div class="entry-body">
+                            Paciente em repouso e sem queixas no momento. Respiração espontânea, sem sinais de desconforto respiratório importante.<br>
+                            Mantida cabeceira elevada.
+                        </div>
+                        <div class="vitals-box">
+                            <div class="vital-item"><i class="fa-solid fa-heart-pulse"></i> PA: <span class="vital-value">124 × 72 mmHg</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-wave-square"></i> FC: <span class="vital-value">80 bpm</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-lungs"></i> FR: <span class="vital-value">19 irpm</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-droplet"></i> SpO₂: <span class="vital-value">97%</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-temperature-high"></i> Temp: <span class="vital-value">36,5 °C</span></div>
+                        </div>
+                        <div class="entry-body">
+                            Sem intercorrências.
+                        </div>
+                        <div class="entry-footer">
+                            <span class="signature">Damião Lima — Técnico de Enfermagem</span>
+                        </div>
+                    </div>
+
+                    <div class="timeline-entry">
+                        <div class="entry-header">
+                            <div class="entry-time-title">
+                                <span class="entry-time">04:00</span>
+                                <span class="entry-title">CONTROLE</span>
+                            </div>
+                        </div>
+                        <div class="entry-body">
+                            Paciente dormindo, despertável ao chamado, consciente e orientado ao despertar.<br>
+                            Mantida monitorização e cuidados de conforto.
+                        </div>
+                        <div class="vitals-box">
+                            <div class="vital-item"><i class="fa-solid fa-heart-pulse"></i> PA: <span class="vital-value">124 × 72 mmHg</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-wave-square"></i> FC: <span class="vital-value">78 bpm</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-lungs"></i> FR: <span class="vital-value">18 irpm</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-droplet"></i> SpO₂: <span class="vital-value">97%</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-temperature-high"></i> Temp: <span class="vital-value">36,4 °C</span></div>
+                        </div>
+                        <div class="entry-footer">
+                            <span class="signature">Damião Lima — Técnico de Enfermagem</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- 3º DIA DE INTERNAÇÃO -->
+        <section id="dia3" class="day-section">
+            <div class="day-title">
+                <i class="fa-regular fa-calendar-check"></i> 20/09/2026 — 3º DIA DE INTERNAÇÃO
+            </div>
+
+            <!-- Diurno -->
+            <div class="period-block">
+                <span class="period-header period-diurno"><i class="fa-solid fa-sun"></i> Período Diurno</span>
+                <div class="timeline">
+
+                    <div class="timeline-entry">
+                        <div class="entry-header">
+                            <div class="entry-time-title">
+                                <span class="entry-time">08:00</span>
+                                <span class="entry-title">EVOLUÇÃO</span>
+                            </div>
+                        </div>
+                        <div class="entry-body">
+                            Paciente consciente, orientado, afebril e apresentando melhora significativa do padrão respiratório.<br>
+                            Respiração espontânea, sem sinais de esforço respiratório em repouso.
+                        </div>
+                        <div class="vitals-box">
+                            <div class="vital-item"><i class="fa-solid fa-heart-pulse"></i> PA: <span class="vital-value">126 × 74 mmHg</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-wave-square"></i> FC: <span class="vital-value">80 bpm</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-lungs"></i> FR: <span class="vital-value">18 irpm</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-droplet"></i> SpO₂: <span class="vital-value">97% (Ar Ambiente)</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-temperature-high"></i> Temp: <span class="vital-value">36,5 °C</span></div>
+                        </div>
+                        <div class="entry-body">
+                            Realizado banho no leito com auxílio parcial. Higiene corporal, íntima e oral realizadas. Pele íntegra.<br>
+                            Paciente apresentou melhora da mobilidade.
+                        </div>
+                        <div class="entry-footer">
+                            <span class="signature">Damião Lima — Técnico de Enfermagem</span>
+                        </div>
+                    </div>
+
+                    <div class="timeline-entry">
+                        <div class="entry-header">
+                            <div class="entry-time-title">
+                                <span class="entry-time">10:00</span>
+                                <span class="entry-title">LIBERAÇÃO DA DIETA ORAL</span>
+                            </div>
+                        </div>
+                        <div class="entry-body">
+                            Paciente avaliado pela equipe responsável, sendo liberada progressão da alimentação para via oral, conforme prescrição.<br>
+                            Iniciada dieta oral conforme orientação da equipe. Paciente mantido sentado/Fowler durante alimentação.<br>
+                            Orientado a alimentar-se lentamente e comunicar à equipe qualquer dificuldade para deglutir, tosse ou engasgo.<br>
+                            Paciente apresentou boa aceitação, sem náuseas, vômitos ou sinais aparentes de broncoaspiração.<br>
+                            SNE mantida até confirmação da adequada tolerância à dieta oral.
+                        </div>
+                        <div class="entry-footer">
+                            <span class="signature">Damião Lima — Técnico de Enfermagem</span>
+                        </div>
+                    </div>
+
+                    <div class="timeline-entry">
+                        <div class="entry-header">
+                            <div class="entry-time-title">
+                                <span class="entry-time">14:00</span>
+                                <span class="entry-title">EVOLUÇÃO</span>
+                            </div>
+                        </div>
+                        <div class="entry-body">
+                            Paciente aceitando dieta oral, sem intercorrências.<br>
+                            Apresenta melhora clínica e respiratória. Mantém respiração espontânea em ar ambiente.
+                        </div>
+                        <div class="vitals-box">
+                            <div class="vital-item"><i class="fa-solid fa-heart-pulse"></i> PA: <span class="vital-value">124 × 72 mmHg</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-wave-square"></i> FC: <span class="vital-value">78 bpm</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-lungs"></i> FR: <span class="vital-value">18 irpm</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-droplet"></i> SpO₂: <span class="vital-value">98%</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-temperature-high"></i> Temp: <span class="vital-value">36,4 °C</span></div>
+                        </div>
+                        <div class="entry-body">
+                            Conforme prescrição, realizada retirada da SNE pela equipe responsável, sem intercorrências.<br>
+                            Mantidos cuidados de higiene, conforto, prevenção de quedas e monitorização.
+                        </div>
+                        <div class="entry-footer">
+                            <span class="signature">Damião Lima — Técnico de Enfermagem</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Noturno -->
+            <div class="period-block">
+                <span class="period-header period-noturno"><i class="fa-solid fa-moon"></i> Período Noturno</span>
+                <div class="timeline">
+
+                    <div class="timeline-entry">
+                        <div class="entry-header">
+                            <div class="entry-time-title">
+                                <span class="entry-time">20:00</span>
+                                <span class="entry-title">EVOLUÇÃO NOTURNA</span>
+                            </div>
+                        </div>
+                        <div class="entry-body">
+                            Paciente consciente, orientado e comunicativo. Em ar ambiente, sem sinais de desconforto respiratório.<br>
+                            Aceitando dieta oral satisfatoriamente.<br>
+                            Realizada higiene oral, troca de roupa e organização do leito.
+                        </div>
+                        <div class="vitals-box">
+                            <div class="vital-item"><i class="fa-solid fa-heart-pulse"></i> PA: <span class="vital-value">122 × 70 mmHg</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-wave-square"></i> FC: <span class="vital-value">76 bpm</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-lungs"></i> FR: <span class="vital-value">18 irpm</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-droplet"></i> SpO₂: <span class="vital-value">98%</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-temperature-high"></i> Temp: <span class="vital-value">36,3 °C</span></div>
+                        </div>
+                        <div class="entry-body">
+                            Sem intercorrências durante o período.
+                        </div>
+                        <div class="entry-footer">
+                            <span class="signature">Damião Lima — Técnico de Enfermagem</span>
+                        </div>
+                    </div>
+
+                    <div class="timeline-entry">
+                        <div class="entry-header">
+                            <div class="entry-time-title">
+                                <span class="entry-time">00:00</span>
+                                <span class="entry-title">CONTROLE NOTURNO</span>
+                            </div>
+                        </div>
+                        <div class="entry-body">
+                            Paciente em repouso, consciente e orientado. Respiração espontânea em ar ambiente.<br>
+                            Sem queixas no momento.
+                        </div>
+                        <div class="vitals-box">
+                            <div class="vital-item"><i class="fa-solid fa-heart-pulse"></i> PA: <span class="vital-value">120 × 70 mmHg</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-wave-square"></i> FC: <span class="vital-value">74 bpm</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-lungs"></i> FR: <span class="vital-value">18 irpm</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-droplet"></i> SpO₂: <span class="vital-value">98%</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-temperature-high"></i> Temp: <span class="vital-value">36,2 °C</span></div>
+                        </div>
+                        <div class="entry-body">
+                            Mantidas medidas de segurança e conforto.
+                        </div>
+                        <div class="entry-footer">
+                            <span class="signature">Damião Lima — Técnico de Enfermagem</span>
+                        </div>
+                    </div>
+
+                    <div class="timeline-entry">
+                        <div class="entry-header">
+                            <div class="entry-time-title">
+                                <span class="entry-time">04:00</span>
+                                <span class="entry-title">CONTROLE NOTURNO</span>
+                            </div>
+                        </div>
+                        <div class="entry-body">
+                            Paciente em repouso, sem intercorrências. Mantém respiração espontânea, sem sinais de desconforto.
+                        </div>
+                        <div class="vitals-box">
+                            <div class="vital-item"><i class="fa-solid fa-heart-pulse"></i> PA: <span class="vital-value">120 × 68 mmHg</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-wave-square"></i> FC: <span class="vital-value">72 bpm</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-lungs"></i> FR: <span class="vital-value">17 irpm</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-droplet"></i> SpO₂: <span class="vital-value">98%</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-temperature-high"></i> Temp: <span class="vital-value">36,2 °C</span></div>
+                        </div>
+                        <div class="entry-footer">
+                            <span class="signature">Damião Lima — Técnico de Enfermagem</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- 4º DIA DE INTERNAÇÃO -->
+        <section id="dia4" class="day-section">
+            <div class="day-title">
+                <i class="fa-regular fa-calendar-check"></i> 21/09/2026 — 4º DIA DE INTERNAÇÃO
+            </div>
+
+            <!-- Diurno -->
+            <div class="period-block">
+                <span class="period-header period-diurno"><i class="fa-solid fa-sun"></i> Período Diurno</span>
+                <div class="timeline">
+
+                    <div class="timeline-entry">
+                        <div class="entry-header">
+                            <div class="entry-time-title">
+                                <span class="entry-time">08:00</span>
+                                <span class="entry-title">EVOLUÇÃO</span>
+                            </div>
+                        </div>
+                        <div class="entry-body">
+                            Paciente consciente, orientado, afebril e comunicativo. Eupneico em repouso, em ar ambiente.<br>
+                            Aceitando dieta oral, sem náuseas ou vômitos.<br>
+                            Diurese espontânea presente. Evacuação presente.
+                        </div>
+                        <div class="vitals-box">
+                            <div class="vital-item"><i class="fa-solid fa-heart-pulse"></i> PA: <span class="vital-value">122 × 70 mmHg</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-wave-square"></i> FC: <span class="vital-value">74 bpm</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-lungs"></i> FR: <span class="vital-value">17 irpm</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-droplet"></i> SpO₂: <span class="vital-value">98%</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-temperature-high"></i> Temp: <span class="vital-value">36,3 °C</span></div>
+                        </div>
+                        <div class="entry-body">
+                            Realizado banho, higiene oral e troca de roupas. Paciente colaborativo.
+                        </div>
+                        <div class="entry-footer">
+                            <span class="signature">Damião Lima — Técnico de Enfermagem</span>
+                        </div>
+                    </div>
+
+                    <div class="timeline-entry">
+                        <div class="entry-header">
+                            <div class="entry-time-title">
+                                <span class="entry-time">14:00</span>
+                                <span class="entry-title">DEAMBULAÇÃO E CUIDADOS</span>
+                            </div>
+                        </div>
+                        <div class="entry-body">
+                            Paciente realizou deambulação pelo quarto com auxílio da equipe, apresentando boa tolerância.<br>
+                            Sem queda ou intercorrências.<br>
+                            Realizadas orientações quanto à prevenção de quedas e necessidade de solicitar auxílio durante a deambulação.<br>
+                            Mantidos cuidados de higiene, conforto e segurança.
+                        </div>
+                        <div class="vitals-box">
+                            <div class="vital-item"><i class="fa-solid fa-heart-pulse"></i> PA: <span class="vital-value">120 × 70 mmHg</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-wave-square"></i> FC: <span class="vital-value">76 bpm</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-lungs"></i> FR: <span class="vital-value">18 irpm</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-droplet"></i> SpO₂: <span class="vital-value">98% (Ar Ambiente)</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-temperature-high"></i> Temp: <span class="vital-value">36,4 °C</span></div>
+                        </div>
+                        <div class="entry-footer">
+                            <span class="signature">Damião Lima — Técnico de Enfermagem</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Noturno -->
+            <div class="period-block">
+                <span class="period-header period-noturno"><i class="fa-solid fa-moon"></i> Período Noturno</span>
+                <div class="timeline">
+
+                    <div class="timeline-entry">
+                        <div class="entry-header">
+                            <div class="entry-time-title">
+                                <span class="entry-time">20:00</span>
+                                <span class="entry-title">EVOLUÇÃO</span>
+                            </div>
+                        </div>
+                        <div class="entry-body">
+                            Paciente em leito, consciente, orientado e tranquilo. Eupneico em ar ambiente.<br>
+                            Aceitando dieta oral. Sem queixas respiratórias no momento.
+                        </div>
+                        <div class="vitals-box">
+                            <div class="vital-item"><i class="fa-solid fa-heart-pulse"></i> PA: <span class="vital-value">120 × 68 mmHg</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-wave-square"></i> FC: <span class="vital-value">74 bpm</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-lungs"></i> FR: <span class="vital-value">17 irpm</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-droplet"></i> SpO₂: <span class="vital-value">98%</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-temperature-high"></i> Temp: <span class="vital-value">36,2 °C</span></div>
+                        </div>
+                        <div class="entry-body">
+                            Realizados cuidados de higiene e conforto. Mantidas medidas de segurança.
+                        </div>
+                        <div class="entry-footer">
+                            <span class="signature">Damião Lima — Técnico de Enfermagem</span>
+                        </div>
+                    </div>
+
+                    <div class="timeline-entry">
+                        <div class="entry-header">
+                            <div class="entry-time-title">
+                                <span class="entry-time">00:00</span>
+                                <span class="entry-title">CONTROLE</span>
+                            </div>
+                        </div>
+                        <div class="entry-body">
+                            Paciente em repouso, sem intercorrências. Mantém respiração espontânea e estável em ar ambiente.
+                        </div>
+                        <div class="vitals-box">
+                            <div class="vital-item"><i class="fa-solid fa-heart-pulse"></i> PA: <span class="vital-value">118 × 68 mmHg</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-wave-square"></i> FC: <span class="vital-value">72 bpm</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-lungs"></i> FR: <span class="vital-value">17 irpm</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-droplet"></i> SpO₂: <span class="vital-value">98%</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-temperature-high"></i> Temp: <span class="vital-value">36,1 °C</span></div>
+                        </div>
+                        <div class="entry-footer">
+                            <span class="signature">Damião Lima — Técnico de Enfermagem</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- 5º DIA DE INTERNAÇÃO — ALTA -->
+        <section id="dia5" class="day-section">
+            <div class="day-title">
+                <i class="fa-regular fa-calendar-check"></i> 22/09/2026 — 5º DIA (ALTA HOSPITALAR)
+            </div>
+
+            <div class="period-block">
+                <span class="period-header period-diurno"><i class="fa-solid fa-sun"></i> Período Diurno — Alta</span>
+                <div class="timeline">
+
+                    <div class="timeline-entry">
+                        <div class="entry-header">
+                            <div class="entry-time-title">
+                                <span class="entry-time">08:00</span>
+                                <span class="entry-title">AVALIAÇÃO PARA ALTA</span>
+                            </div>
+                        </div>
+                        <div class="entry-body">
+                            Paciente consciente, orientado em tempo e espaço, comunicativo e colaborativo.<br>
+                            Afebril, eupneico em repouso, em ar ambiente, sem sinais de desconforto respiratório.<br>
+                            Aceitando dieta oral, com boa tolerância.<br>
+                            Deambulando com segurança e sem intercorrências.
+                        </div>
+                        <div class="vitals-box">
+                            <div class="vital-item"><i class="fa-solid fa-heart-pulse"></i> PA: <span class="vital-value">122 × 70 mmHg</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-wave-square"></i> FC: <span class="vital-value">76 bpm</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-lungs"></i> FR: <span class="vital-value">18 irpm</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-droplet"></i> SpO₂: <span class="vital-value">98% (Ar Ambiente)</span></div>
+                            <div class="vital-item"><i class="fa-solid fa-temperature-high"></i> Temp: <span class="vital-value">36,4 °C</span></div>
+                        </div>
+                        <div class="entry-body">
+                            <strong>Paciente avaliado pela equipe médica e liberado para alta hospitalar.</strong>
+                        </div>
+                    </div>
+
+                    <div class="timeline-entry" style="border-left: 4px solid var(--success);">
+                        <div class="entry-header">
+                            <div class="entry-time-title">
+                                <span class="entry-time" style="background-color: #dcfce7; color: var(--success);">10:00</span>
+                                <span class="entry-title" style="color: var(--success);">ORIENTAÇÕES DE ALTA</span>
+                            </div>
+                        </div>
+                        <div class="entry-body">
+                            Realizados cuidados de higiene e conforto, organização dos pertences e conferência da identificação.<br>
+                            Paciente e familiar orientados quanto à continuidade do tratamento prescrito, uso correto das medicações, alimentação, hidratação e acompanhamento ambulatorial.<br><br>
+                            <strong>Orientados quanto aos sinais de alerta que necessitam de avaliação imediata:</strong>
+                            <ul style="margin-left: 20px; margin-top: 5px;">
+                                <li>Piora da falta de ar;</li>
+                                <li>Dificuldade respiratória;</li>
+                                <li>Dor torácica;</li>
+                                <li>Cianose;</li>
+                                <li>Febre persistente;</li>
+                                <li>Confusão ou alteração do nível de consciência.</li>
+                            </ul>
+                            <br>
+                            Paciente deixa a unidade acompanhado de familiar, em condições clínicas estáveis, conforme liberação médica.
+                        </div>
+                        <div class="entry-footer">
+                            <span class="signature">Damião Lima — Técnico de Enfermagem | COREN-SP: 123456-TE</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- RESUMO DA EVOLUÇÃO -->
+        <section id="resumo" class="summary-card">
+            <h2><i class="fa-solid fa-clipboard-check"></i> RESUMO DA EVOLUÇÃO</h2>
+            <ul class="summary-list">
+                <li><strong>Admissão:</strong> Dispneia grave, FR 32 irpm, SpO₂ 86% em ar ambiente e necessidade de oxigenoterapia.</li>
+                <li><strong>Durante a internação:</strong> Monitorização dos sinais vitais, oxigenoterapia, posicionamento em Fowler, higiene oral, banho no leito, mudança de decúbito, prevenção de lesão por pressão e quedas, dieta por SNE e acompanhamento da tolerância.</li>
+                <li><strong>Evolução clínica:</strong> Redução progressiva da dispneia e melhora contínua dos parâmetros respiratórios.</li>
+                <li><strong>Transição de dieta:</strong> Inicialmente suspensa por via oral → Dieta enteral por SNE → Progressão para dieta oral após avaliação → Retirada com sucesso da SNE.</li>
+                <li><strong>Alta Hospitalar:</strong> Paciente eupneico, afebril, SpO₂ 98% em ar ambiente, aceitando dieta oral e deambulando com segurança, liberado para alta pela equipe médica.</li>
+            </ul>
+        </section>
+
+    </div>
+
+</body>
+</html>
